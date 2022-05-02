@@ -299,7 +299,7 @@ extension TextUIView: UITextInput {
         guard let from = from as? SortedTextPosition,
               let to = toPosition as? SortedTextPosition
         else {
-            fatalError()
+            return 0
         }
         return to.index - from.index
     }
@@ -330,10 +330,11 @@ extension TextUIView: UITextInput {
         in direction: UITextLayoutDirection
     ) -> UITextRange? {
         
-        return nil
         // TODO
         guard let position = position as? SortedTextPosition
-        else { return nil }
+        else {
+            return nil
+        }
         
         switch direction {
         case .left, .up:
@@ -481,7 +482,7 @@ extension TextUIView: UITextInput {
             anchors: [],
             modifiers: [],
             selecting: true,
-            bounds: bounds
+            bounds: .zero
         )
         
         guard let s = selections.first else {
