@@ -441,34 +441,31 @@ extension TextUIView: UITextInput {
     }
     
     func selectionRects(for range: UITextRange) -> [UITextSelectionRect] {
-        // TODO:
-//        guard let range = range as? SortedTextRange else {
-//            return []
-//        }
-//
-//        let nsRange = range.nsRange(
-//            in: textContentStorage.textStorage!.string
-//        )
-//
-//        guard let nsTextRange = NSTextRange(
-//            nsRange,
-//            in: textContentStorage
-//        ) else { return [] }
-//
-//        var rects = [SortedTextSelectionRect]()
-//
-//        textLayoutManager.enumerateTextSegments(
-//            in: nsTextRange,
-//            type: .selection
-//        ) { segmentRange, segmentFrame, baselineOffset, textContainer in
-//            let r = SortedTextSelectionRect(rect: segmentFrame)
-//            rects.append(r)
-//            return true
-//        }
-//
-//        print("*** selectionRects: \(rects)")
-//        return rects
-        return []
+        guard let range = range as? SortedTextRange else {
+            fatalError()
+        }
+        
+        let nsRange = range.nsRange(
+            in: textContentStorage.textStorage?.string ?? ""
+        )
+        
+        guard let textRange = NSTextRange(nsRange, in: textContentStorage) else {
+            fatalError()
+        }
+        
+        var rects = [SortedTextSelectionRect]()
+        
+        textLayoutManager.enumerateTextSegments(
+            in: textRange,
+            type: .selection
+        ) { textRange, textSegmentFrame, baselineOffset, textContainer in
+            let rect = textSegmentFrame.offsetBy(dx: padding, dy: 0)
+            let selectionRect = SortedTextSelectionRect(rect: rect)
+            rects.append(selectionRect)
+            return true
+        }
+        
+        return rects
     }
     
     func closestPosition(to point: CGPoint) -> UITextPosition? {
