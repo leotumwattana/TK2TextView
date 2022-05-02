@@ -7,18 +7,50 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		3A2051E3281552890064903F /* CustomLayoutFragment.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3A2051E2281552890064903F /* CustomLayoutFragment.swift */; };
+		3A2051E528157FE50064903F /* MarkdownRegex.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3A2051E428157FE50064903F /* MarkdownRegex.swift */; };
+		3A2051E7281580770064903F /* String+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3A2051E6281580770064903F /* String+Extensions.swift */; };
+		3A2051E9281581C40064903F /* NSAttributedString+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3A2051E8281581C40064903F /* NSAttributedString+Extensions.swift */; };
+		3A2051EB281582C20064903F /* UIFont+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3A2051EA281582C20064903F /* UIFont+Extensions.swift */; };
+		3A2051ED28164CF60064903F /* NSRange+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3A2051EC28164CF60064903F /* NSRange+Extensions.swift */; };
+		3A2051EF28164D0D0064903F /* NSTextRange+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3A2051EE28164D0D0064903F /* NSTextRange+Extensions.swift */; };
+		3A2051F1281651340064903F /* SortedTextView+UITextInput.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3A2051F0281651340064903F /* SortedTextView+UITextInput.swift */; };
+		3A2051F32817E8AC0064903F /* SortedTextContentStorage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3A2051F22817E8AC0064903F /* SortedTextContentStorage.swift */; };
+		3A2051F52818E7600064903F /* NSAttributedStringKey+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3A2051F42818E7600064903F /* NSAttributedStringKey+Extensions.swift */; };
+		3A2051F72818E98E0064903F /* CodeBlockLayoutFragment.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3A2051F62818E98E0064903F /* CodeBlockLayoutFragment.swift */; };
+		3A2051F9281C831D0064903F /* SortedTextPosition.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3A2051F8281C831D0064903F /* SortedTextPosition.swift */; };
+		3A2051FB281C833C0064903F /* SortedTextRange.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3A2051FA281C833C0064903F /* SortedTextRange.swift */; };
 		3A83CCAD281429C700EB4D13 /* TK2TextViewApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3A83CCAC281429C700EB4D13 /* TK2TextViewApp.swift */; };
 		3A83CCAF281429C700EB4D13 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3A83CCAE281429C700EB4D13 /* ContentView.swift */; };
 		3A83CCB1281429C800EB4D13 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 3A83CCB0281429C800EB4D13 /* Assets.xcassets */; };
 		3A83CCB4281429C800EB4D13 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 3A83CCB3281429C800EB4D13 /* Preview Assets.xcassets */; };
+		3A83CCBC281429F000EB4D13 /* SortedTextView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3A83CCBB281429F000EB4D13 /* SortedTextView.swift */; };
+		3A83CCBE281431D600EB4D13 /* TextLayoutFragmentLayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3A83CCBD281431D600EB4D13 /* TextLayoutFragmentLayer.swift */; };
+		3A83CCC0281431F000EB4D13 /* TextLayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3A83CCBF281431F000EB4D13 /* TextLayer.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		3A2051E2281552890064903F /* CustomLayoutFragment.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomLayoutFragment.swift; sourceTree = "<group>"; };
+		3A2051E428157FE50064903F /* MarkdownRegex.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MarkdownRegex.swift; sourceTree = "<group>"; };
+		3A2051E6281580770064903F /* String+Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "String+Extensions.swift"; sourceTree = "<group>"; };
+		3A2051E8281581C40064903F /* NSAttributedString+Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "NSAttributedString+Extensions.swift"; sourceTree = "<group>"; };
+		3A2051EA281582C20064903F /* UIFont+Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIFont+Extensions.swift"; sourceTree = "<group>"; };
+		3A2051EC28164CF60064903F /* NSRange+Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "NSRange+Extensions.swift"; sourceTree = "<group>"; };
+		3A2051EE28164D0D0064903F /* NSTextRange+Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "NSTextRange+Extensions.swift"; sourceTree = "<group>"; };
+		3A2051F0281651340064903F /* SortedTextView+UITextInput.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SortedTextView+UITextInput.swift"; sourceTree = "<group>"; };
+		3A2051F22817E8AC0064903F /* SortedTextContentStorage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SortedTextContentStorage.swift; sourceTree = "<group>"; };
+		3A2051F42818E7600064903F /* NSAttributedStringKey+Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "NSAttributedStringKey+Extensions.swift"; sourceTree = "<group>"; };
+		3A2051F62818E98E0064903F /* CodeBlockLayoutFragment.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CodeBlockLayoutFragment.swift; sourceTree = "<group>"; };
+		3A2051F8281C831D0064903F /* SortedTextPosition.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SortedTextPosition.swift; sourceTree = "<group>"; };
+		3A2051FA281C833C0064903F /* SortedTextRange.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SortedTextRange.swift; sourceTree = "<group>"; };
 		3A83CCA9281429C700EB4D13 /* TK2TextView.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = TK2TextView.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		3A83CCAC281429C700EB4D13 /* TK2TextViewApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TK2TextViewApp.swift; sourceTree = "<group>"; };
 		3A83CCAE281429C700EB4D13 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		3A83CCB0281429C800EB4D13 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		3A83CCB3281429C800EB4D13 /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
+		3A83CCBB281429F000EB4D13 /* SortedTextView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SortedTextView.swift; sourceTree = "<group>"; };
+		3A83CCBD281431D600EB4D13 /* TextLayoutFragmentLayer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextLayoutFragmentLayer.swift; sourceTree = "<group>"; };
+		3A83CCBF281431F000EB4D13 /* TextLayer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextLayer.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -35,6 +67,7 @@
 		3A83CCA0281429C700EB4D13 = {
 			isa = PBXGroup;
 			children = (
+				3A2051F22817E8AC0064903F /* SortedTextContentStorage.swift */,
 				3A83CCAB281429C700EB4D13 /* TK2TextView */,
 				3A83CCAA281429C700EB4D13 /* Products */,
 			);
@@ -51,6 +84,7 @@
 		3A83CCAB281429C700EB4D13 /* TK2TextView */ = {
 			isa = PBXGroup;
 			children = (
+				3A83CCBA281429D100EB4D13 /* TextView */,
 				3A83CCAC281429C700EB4D13 /* TK2TextViewApp.swift */,
 				3A83CCAE281429C700EB4D13 /* ContentView.swift */,
 				3A83CCB0281429C800EB4D13 /* Assets.xcassets */,
@@ -65,6 +99,28 @@
 				3A83CCB3281429C800EB4D13 /* Preview Assets.xcassets */,
 			);
 			path = "Preview Content";
+			sourceTree = "<group>";
+		};
+		3A83CCBA281429D100EB4D13 /* TextView */ = {
+			isa = PBXGroup;
+			children = (
+				3A2051F42818E7600064903F /* NSAttributedStringKey+Extensions.swift */,
+				3A83CCBB281429F000EB4D13 /* SortedTextView.swift */,
+				3A2051F0281651340064903F /* SortedTextView+UITextInput.swift */,
+				3A2051F8281C831D0064903F /* SortedTextPosition.swift */,
+				3A2051FA281C833C0064903F /* SortedTextRange.swift */,
+				3A2051EC28164CF60064903F /* NSRange+Extensions.swift */,
+				3A2051EE28164D0D0064903F /* NSTextRange+Extensions.swift */,
+				3A2051EA281582C20064903F /* UIFont+Extensions.swift */,
+				3A2051E8281581C40064903F /* NSAttributedString+Extensions.swift */,
+				3A2051E6281580770064903F /* String+Extensions.swift */,
+				3A2051F62818E98E0064903F /* CodeBlockLayoutFragment.swift */,
+				3A2051E428157FE50064903F /* MarkdownRegex.swift */,
+				3A2051E2281552890064903F /* CustomLayoutFragment.swift */,
+				3A83CCBF281431F000EB4D13 /* TextLayer.swift */,
+				3A83CCBD281431D600EB4D13 /* TextLayoutFragmentLayer.swift */,
+			);
+			path = TextView;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -137,8 +193,24 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				3A2051F72818E98E0064903F /* CodeBlockLayoutFragment.swift in Sources */,
+				3A83CCBE281431D600EB4D13 /* TextLayoutFragmentLayer.swift in Sources */,
+				3A2051E9281581C40064903F /* NSAttributedString+Extensions.swift in Sources */,
+				3A83CCC0281431F000EB4D13 /* TextLayer.swift in Sources */,
+				3A2051F32817E8AC0064903F /* SortedTextContentStorage.swift in Sources */,
+				3A2051F52818E7600064903F /* NSAttributedStringKey+Extensions.swift in Sources */,
+				3A2051ED28164CF60064903F /* NSRange+Extensions.swift in Sources */,
 				3A83CCAF281429C700EB4D13 /* ContentView.swift in Sources */,
+				3A83CCBC281429F000EB4D13 /* SortedTextView.swift in Sources */,
+				3A2051FB281C833C0064903F /* SortedTextRange.swift in Sources */,
+				3A2051E7281580770064903F /* String+Extensions.swift in Sources */,
+				3A2051E3281552890064903F /* CustomLayoutFragment.swift in Sources */,
+				3A2051F1281651340064903F /* SortedTextView+UITextInput.swift in Sources */,
 				3A83CCAD281429C700EB4D13 /* TK2TextViewApp.swift in Sources */,
+				3A2051EF28164D0D0064903F /* NSTextRange+Extensions.swift in Sources */,
+				3A2051EB281582C20064903F /* UIFont+Extensions.swift in Sources */,
+				3A2051F9281C831D0064903F /* SortedTextPosition.swift in Sources */,
+				3A2051E528157FE50064903F /* MarkdownRegex.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
