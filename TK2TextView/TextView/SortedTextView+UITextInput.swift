@@ -8,240 +8,257 @@
 import UIKit
 
 extension TextUIView: UITextInput {
+    
+    // ====================================
+    // MARK: - Replacing and Returning Text
+    // ====================================
+    
     func text(in range: UITextRange) -> String? {
-        guard let range = range as? SortedTextRange else { fatalError() }
-        guard !range.isEmpty else { return nil }
-        
-        guard let string = textContentStorage.textStorage?.string
-        else { return nil }
-        
-        let nsRange = range.nsRange(in: string)
-        
-        return textContentStorage
-            .textStorage?
-            .attributedSubstring(from: nsRange)
-            .string
-    }
-    
-    func replace(_ range: UITextRange, withText text: String) {
-        guard let range = range as? SortedTextRange
-        else { fatalError() }
-        
-        guard let selectedTextRange = selectedTextRange as? SortedTextRange
-        else { fatalError() }
-        
-        guard markedTextRange == nil else {
-            fatalError("Current logic relies on the assumption that when this method is called, there's no marked area")
-        }
-        
-        let insertionIndex = range.startPosition.index
-        
-        // after replacement is fulfilled, selected range might change
-        // if the replaced range overlapses with selected range, selection
-        // is cleared
-        guard let textStorage = textContentStorage.textStorage else { return }
-        
-        textContentStorage.performEditingTransaction {
-            textStorage.replaceCharacters(
-                in: range.nsRange(in: textStorage.string),
-                with: string
-            )
-        }
-        
-        if range.endPosition.index <= selectedTextRange.startPosition.index {
-            // selected range should change
-            let selectionOffset = selectedTextRange.startPosition.index
-                - insertionIndex
-            let newSelectionOffset = selectionOffset - range.length + text.count
-            let newSelectionIndex = newSelectionOffset + insertionIndex
-            self.selectedTextRange = SortedTextRange(
-                from: SortedTextPosition(
-                    index: newSelectionIndex
-                ),
-                to: SortedTextPosition(
-                    index: newSelectionIndex + selectedTextRange.length
-                )
-            )
-        } else if range.startPosition.index >= selectedTextRange.endPosition.index {
-            // do nothing
-        } else {
-            // has intersection
-            let insertionEndPosition = SortedTextPosition(
-                index: insertionIndex + text.count
-            )
-            self.selectedTextRange = SortedTextRange(
-                from: insertionEndPosition,
-                to: insertionEndPosition
-            )
-        }
-    }
-    
-    var selectedTextRange: UITextRange? {
-        get {
-            _selectedTextRange
-        }
-        set {
-            if let range = newValue as? SortedTextRange {
-                _selectedTextRange = range
-            } else {
-                fatalError()
-            }
-        }
-    }
-    
-    var markedTextRange: UITextRange? {
-        get {
-            _markedTextRange
-        }
-        set {
-            if let range = newValue as? SortedTextRange {
-                _markedTextRange = range
-            } else {
-                fatalError()
-            }
-        }
-    }
-    
-    var markedTextStyle: [NSAttributedString.Key : Any]? {
-        get { _markedTextStyle }
-        set { _markedTextStyle = newValue }
-    }
-    
-    func setMarkedText(_ markedText: String?, selectedRange: NSRange) {
-        // setMarkedText operation takes effect on current focus point
-        // (marked or selected)
-        // after marked text is updated, old selection or marked range is
-        // replaced, new marked range is always updated and new selection
-        // is always changed to a new range within.
         
         guard let textStorage = textContentStorage.textStorage
         else { fatalError() }
         
-        guard let rangeToReplace = _markedTextRange ?? _selectedTextRange
-        else { return }
+        guard let textRange = range as? SortedTextRange
+        else { return nil }
         
-        let rangeStartPosition = rangeToReplace.startPosition
+        guard let indexRange = textRange.range(in: textStorage.string)
+        else { return nil }
         
-        if let markedText = markedText {
+        let string = String(textStorage.string[indexRange])
+        print("*** \(#function): range = \(range), string = \(string)")
+        return string
+    }
+    
+    func replace(_ range: UITextRange, withText text: String) {
+        print("\(#function): range = \(range), with text = \(text)")
+        
+        guard let textStorage = textContentStorage.textStorage
+        else { fatalError() }
+        
+        guard let textRange = range as? SortedTextRange,
+              let nsRange = textRange.nsRange(in: textStorage.string)
+        else { fatalError("\(#function): Failed to convert \(range) to a valid NSRange.") }
+                
+        /*
+         Replace the characters in text storage and update the selectedTextRange.
+         Notify inputDelegate before and after doing the change.
+         Note that TextRange is a half-open range without including the upper bound.
+         */
+        
+        inputDelegate?.textWillChange(self)
+        textContentStorage.performEditingTransaction {
+            textStorage.replaceCharacters(in: nsRange, with: text)
+        }
+        inputDelegate?.textDidChange(self)
+        
+        let newEnd = SortedTextPosition(
+            position: textRange.start,
+            offset: text.count
+        )
+        
+        selectedTextRange = SortedTextRange(
+            from: textRange.start,
+            to: newEnd
+        )
+    }
+    
+    
+    // =============================================
+    // MARK: - Working with Marked and Selected Text
+    // =============================================
+    
+    /*
+     It seems like UITextInteraction doesn't support marked text cursor -
+     Once markedTextRange has a value, the cursor view disappears.
+     */
+    
+    func setMarkedText(_ markedText: String?, selectedRange: NSRange) {
+        print("\(#function): markedText = \(String(describing: markedText)), selectedRange = \(selectedRange)")
+        /*
+         If marktedText is nil, use "" to clear the existing marked and
+         selected text.
+         Clear the existing marked text, or the selected text if no marked
+         text exists.
+         */
+        
+        guard let textStorage = textContentStorage.textStorage else {
+            fatalError()
+        }
+        
+        let rangeToReplace = markedTextRange ?? selectedTextRange
+        
+        if let rangeToReplace = rangeToReplace as? SortedTextRange,
+            let nsRange = rangeToReplace.nsRange(in: textStorage.string)
+        {
+            inputDelegate?.textWillChange(self)
+            
+            let newMarkedText = markedText ?? ""
+            
             textContentStorage.performEditingTransaction {
-                textStorage.replaceCharacters(
-                    in: rangeToReplace.nsRange(in: textStorage.string),
-                    with: markedText
+                textStorage.replaceCharacters(in: nsRange, with: newMarkedText)
+            
+                let newEnd = SortedTextPosition(
+                    position: rangeToReplace.start,
+                    offset: newMarkedText.count
                 )
+                
+                markedTextRange = SortedTextRange(
+                    from: rangeToReplace.start,
+                    to: newEnd
+                )
+                
+                if let nsRange = (markedTextRange as! SortedTextRange)
+                    .nsRange(in: textStorage.string),
+                   let markedTextStyle = markedTextStyle
+                {
+                    textStorage.addAttributes(markedTextStyle, range: nsRange)
+                }
             }
-            let rangeStartIndex = rangeStartPosition.index
-            if let swiftRange = Range(selectedRange, in: markedText) {
-                
-                let swiftRangeOffset = markedText.distance(
-                    from: markedText.startIndex,
-                    to: swiftRange.lowerBound
-                )
-                
-                let swiftRangeLength = markedText.distance(
-                    from: swiftRange.lowerBound,
-                    to: swiftRange.upperBound
-                )
-                
-                let selectionStartIndex = rangeStartIndex + swiftRangeOffset
-                
-                _markedTextRange = SortedTextRange(
-                    from: rangeStartPosition,
-                    maxIndex: markedText.count,
-                    in: textStorage.string
-                )
-                
-                _selectedTextRange = SortedTextRange(
-                    from: SortedTextPosition(
-                        index: selectionStartIndex
-                    ),
-                    to: SortedTextPosition(
-                        index: selectionStartIndex + swiftRangeLength
-                    )
-                )
-            }
-        } else {
-            textStorage.replaceCharacters(
-                in: rangeToReplace.nsRange(in: textStorage.string),
-                with: ""
+            inputDelegate?.textDidChange(self)
+        }
+        
+        /*
+         Now that the marked text or selected text is replaced, update
+         selectedTextRange with the selectedRange in the marked text.
+         */
+        
+        if let markedText = markedText,
+           let markedTextSelectedRange = Range(selectedRange, in: markedText),
+           let rangeToReplace = rangeToReplace as? SortedTextRange
+        {
+            let offset = markedText.distance(
+                from: markedText.startIndex,
+                to: markedTextSelectedRange.lowerBound
             )
-            _markedTextRange = nil
-            _selectedTextRange = SortedTextRange(
-                from: rangeStartPosition,
-                to: rangeStartPosition
+            
+            let length = markedText.distance(
+                from: markedTextSelectedRange.lowerBound,
+                to: markedTextSelectedRange.upperBound
+            )
+            
+            let newStart = SortedTextPosition(
+                position: rangeToReplace.start,
+                offset: offset
+            )
+            
+            let newEnd = SortedTextPosition(
+                position: newStart,
+                offset: length
+            )
+            
+            selectedTextRange = SortedTextRange(
+                from: newStart,
+                to: newEnd
             )
         }
+        
+        textDidChange()
+        print("\(#function): markedTextRange = \(String(describing: markedTextRange))")
+        print("\(#function): selectedTextRange = \(String(describing: selectedTextRange))")
     }
     
     func unmarkText() {
-        // unmarkText operation takes effect on current focus point
-        // (marked or selected).
+        // TODO
+        print("\(#function): markedTextRange = \(String(describing: markedTextRange))")
         
-        // after unmark, marked range is cleared and selection range is
-        // at end of previouly marked area.
-        if let previousMarkedRange = _markedTextRange {
-            let rangeEndPosition = previousMarkedRange.endPosition
-            _selectedTextRange = SortedTextRange(
-                from: rangeEndPosition,
-                to: rangeEndPosition
-            )
-            _markedTextRange = nil
+        guard let textStorage = textContentStorage.textStorage
+        else { fatalError() }
+        
+        guard let markedTextRange = markedTextRange as? SortedTextRange
+        else { return }
+        
+        if let nsRange = markedTextRange.nsRange(in: textStorage.string) {
+            inputDelegate?.textWillChange(self)
+            textContentStorage.performEditingTransaction {
+                markedTextStyle?.keys.forEach { key in
+                    textStorage.removeAttribute(key, range: nsRange)
+                }
+            }
+            inputDelegate?.textDidChange(self)
         }
+        
+        /*
+         Set insertion point to the end of the previously marked text,
+         then clear markedTextRange
+         */
+        
+        selectedTextRange = SortedTextRange(
+            from: markedTextRange.end,
+            to: markedTextRange.end
+        )
+        
+        self.markedTextRange = nil
+        textDidChange()
+        
+        /*
+         BUG: UITextInteraction doesn't show the cursor after clearing
+         markedTextRange. So replace the existing UITextInteraction object
+         with a new one. This is most likely a bug.
+         */
+        
+        interactions
+            .filter { $0 is UITextInteraction }
+            .forEach { removeInteraction($0) }
+        
+        let newInteraction = UITextInteraction(for: .editable)
+        newInteraction.textInput = self
+        addInteraction(newInteraction)
+        self.textInteraction = newInteraction
     }
+    
+    // ================================================
+    // MARK: - Computing Text Ranges and Text Positions
+    // ================================================
     
     var beginningOfDocument: UITextPosition {
         SortedTextPosition(index: 0)
     }
     
     var endOfDocument: UITextPosition {
-        SortedTextPosition(
-            index: textContentStorage.textStorage!.string.count
+        return SortedTextPosition(
+            index: textContentStorage.textStorage?.string.count ?? 0
         )
     }
-    
-    // ======================================
-    // MARK: - Computing Ranges and Positions
-    // ======================================
     
     func textRange(
         from fromPosition: UITextPosition,
         to toPosition: UITextPosition
     ) -> UITextRange? {
-        guard let from = fromPosition as? SortedTextPosition,
-              let to = toPosition as? SortedTextPosition
-        else { return nil }
-        return SortedTextRange(from: from, to: to)
+        print("\(#function): from = \(fromPosition), to = \(toPosition)")
+        
+        guard let start = fromPosition as? SortedTextPosition,
+              let end = toPosition as? SortedTextPosition
+        else { fatalError("\(#function): The type of `fromPosition` or `toPosition` isn't SortedTextPosition.") }
+        
+        return start <= end
+        ? SortedTextRange(from: start, to: end)
+        : SortedTextRange(from: end, to: start)
     }
     
     func position(
         from position: UITextPosition,
         offset: Int
     ) -> UITextPosition? {
-        guard let position = position as? SortedTextPosition
-        else {
-            return nil
-        }
+        print("\(#function): from = \(position), offset = \(offset)")
         
         guard let textStorage = textContentStorage.textStorage
-        else {
-            return nil
+        else { fatalError() }
+
+        guard let position = position as? SortedTextPosition
+        else { fatalError("\(#function): The type of `position` isn't SortedTextPosition") }
+        
+        let newPosition = SortedTextPosition(
+            position: position,
+            offset: offset
+        )
+        
+        if newPosition.index >= textStorage.string.count {
+            return endOfDocument
+        } else if newPosition.index < 0 {
+            return beginningOfDocument
+        } else {
+            return newPosition
         }
-        
-        let proposedIndex = position.index + offset
-        // sometimes the system may want to know off-the-one positions,
-        // we should just return boundary if we return nil, a guarded fatel
-        // error will trigger somewhere else
-//        let newOffset = max(min(from.index + offset, textStorage.string.count), 0)
-        
-        // return nil if proposed index is out of bounds, per documentation
-        
-        guard proposedIndex >= 0 && proposedIndex <= textStorage.string.count
-        else {
-            return nil
-        }
-        
-        let result = SortedTextPosition(index: proposedIndex)
-        print("*** position from position: \(result)")
-        return result
     }
     
     func position(
@@ -250,43 +267,50 @@ extension TextUIView: UITextInput {
         offset: Int
     ) -> UITextPosition? {
         
-        guard let position = position as? SortedTextPosition
-        else {
-            return nil
-        }
+        print("\(#function): from = \(position), in = \(direction), offset = \(offset)")
         
-        var proposedIndex: Int = position.index
+        guard let position = position as? SortedTextPosition
+        else { return nil }
         
         switch direction {
-        case .left, .up:
-            proposedIndex = position.index - offset
-        case .right, .down:
-            proposedIndex = position.index + offset
-        @unknown default:
-            fatalError()
-        }
-        
-        // return nil if proposed index is out of bounds
-        let count = textContentStorage.textStorage?.string.count ?? 0
-        guard proposedIndex >= 0 && proposedIndex <= count
-        else {
+        case .right:
+            let newPosition = SortedTextPosition(
+                position: position,
+                offset: offset
+            )
+            return newPosition > endOfDocument as! SortedTextPosition
+            ? endOfDocument
+            : newPosition
+        case .left:
+            let newPosition = SortedTextPosition(
+                position: position,
+                offset: -offset
+            )
+            return newPosition < beginningOfDocument as! SortedTextPosition
+            ? beginningOfDocument
+            : newPosition
+        default:
             return nil
         }
-        
-        return SortedTextPosition(index: proposedIndex)
     }
+    
+    // =================================
+    // MARK: - Evaluating Text Positions
+    // =================================
     
     func compare(
         _ position: UITextPosition,
         to other: UITextPosition
     ) -> ComparisonResult {
-        guard let from = position as? SortedTextPosition,
-              let to = other as? SortedTextPosition
-        else { return .orderedSame }
+        print("*** \(#function): position = \(position), to = \(other)")
         
-        if from.index < to.index {
+        guard let position = position as? SortedTextPosition,
+              let other = other as? SortedTextPosition
+        else { fatalError("\(#function): The type of `position` or `other` isn't SortedTextPosition") }
+        
+        if position < other {
             return .orderedAscending
-        } else if from.index > to.index {
+        } else if position > other {
             return .orderedDescending
         }
         return .orderedSame
@@ -296,23 +320,36 @@ extension TextUIView: UITextInput {
         from: UITextPosition,
         to toPosition: UITextPosition
     ) -> Int {
+        
+        print("*** \(#function): from = \(from), to = \(toPosition)")
+        
+        // See from and toPosition can be <uninitailized> for macCalayst.
+        // Return 0 in that case.
         guard let from = from as? SortedTextPosition,
               let to = toPosition as? SortedTextPosition
         else {
+            print("*** \(#function): The type of `from` or `toPosition` isn't SortedTextPosition.")
             return 0
         }
         return to.index - from.index
     }
     
-    // ========================
-    // MARK: - Layout Direction
-    // ========================
+    // ===================================================================
+    // MARK: - Text Layout, writing direction and position related methods
+    // Note that this sample only supports left-to-right text direction.
+    // ===================================================================
     
     func position(
         within range: UITextRange,
         farthestIn direction: UITextLayoutDirection
     ) -> UITextPosition? {
-        // TODO
+        
+        print("*** \(#function): within range = \(range)")
+        
+        guard let range = range as? SortedTextRange else {
+            fatalError("\(#function): The type of `range` isn't SortedTextRange.")
+        }
+        
         let isStartFirst = compare(range.start, to: range.end) == .orderedAscending
         
         switch direction {
@@ -321,7 +358,7 @@ extension TextUIView: UITextInput {
         case .right, .down:
             return isStartFirst ? range.end : range.start
         @unknown default:
-            fatalError()
+            fatalError("\(#function): Direction `\(direction)` is unknown.")
         }
     }
     
@@ -332,22 +369,21 @@ extension TextUIView: UITextInput {
         
         // TODO
         guard let position = position as? SortedTextPosition
-        else {
-            return nil
-        }
+        else { fatalError("\(#function): The type of `position` isn't SortedTextPosition") }
         
         switch direction {
         case .left, .up:
-            return SortedTextRange(
-                from: SortedTextPosition(index: 0),
-                to: position
-            )
+            var newStart = SortedTextPosition(position: position, offset: -1)
+            let beginning = beginningOfDocument as! SortedTextPosition
+            newStart = newStart < beginning ? beginning : newStart
+            return SortedTextRange(from: newStart, to: position)
         case .right, .down:
-            return SortedTextRange(
-                from: position,
-                to: SortedTextPosition(index: textContentStorage.textStorage?.string.count ?? 0))
+            var newEnd = SortedTextPosition(position: position, offset: 1)
+            let ending = endOfDocument as! SortedTextPosition
+            newEnd = newEnd > ending ? ending : newEnd
+            return SortedTextRange(from: position, to: newEnd)
         @unknown default:
-            fatalError()
+            fatalError("\(#function): Direction `\(direction)` is unknown.")
         }
     }
     
@@ -365,35 +401,40 @@ extension TextUIView: UITextInput {
         // do nothing
     }
     
+    // ========================
+    // MARK: - Geometry Methods
+    // ========================
+    
     func firstRect(for range: UITextRange) -> CGRect {
-        return bounds
-        // TODO:
-//        guard let range = range as? SortedTextRange else {
-//            return .zero
-//        }
-//
-//        let nsRange = range.nsRange(
-//            in: textContentStorage.textStorage!.string
-//        )
-//
-//        guard let textRange = NSTextRange(
-//            nsRange,
-//            in: textContentStorage
-//        ) else {
-//            return .zero
-//        }
-//
-//        var rect = CGRect.zero
-//
-//        textLayoutManager.enumerateTextSegments(
-//            in: textRange,
-//            type: .selection
-//        ) { _, textSegmentFrame, baselinePosition, textContainer in
-//            rect = convert(textSegmentFrame, to: nil)
-//            return false
-//        }
-//        print("*** firstRect: \(rect)")
-//        return rect
+        // TODO
+        print("*** \(#function): range = \(range)")
+        
+        guard let textStorage = textContentStorage.textStorage
+        else { fatalError() }
+        
+        guard let textRange = range as? SortedTextRange else {
+            fatalError("\(#function): The type of `range` isn't SortedTextRange.")
+        }
+        
+        guard let nsRange = textRange.nsRange(in: textStorage.string) else {
+            print("!!! \(#function): SortedTextRange.nsRange returned nil for \(textRange)")
+            return .zero
+        }
+    
+        guard let nsTextRange = NSTextRange(nsRange, in: textContentStorage)
+        else{ return .zero }
+
+        // @TextKit2
+        var rect = CGRect.zero
+        textLayoutManager.enumerateTextSegments(
+            in: nsTextRange,
+            type: .selection
+        ) { _, textSegmentFrame, baselinePosition, textContainer in
+            rect = convert(textSegmentFrame, to: nil)
+            return false
+        }
+
+        return rect
     }
     
     var documentRange: NSTextRange {
@@ -401,16 +442,15 @@ extension TextUIView: UITextInput {
     }
     
     func caretRect(for position: UITextPosition) -> CGRect {
-        // TODO:
+        
+        print("*** \(#function): position = \(position)")
         
         let loc = offset(from: beginningOfDocument, to: position)
-        
+
         var selectionFrame: CGRect = .zero.with(
             size: CGSize(width: 3, height: 30)
         )
-        
-        print("*** loc: \(loc)")
-        
+
         textLayoutManager.enumerateTextSegments(
             in: NSTextRange(NSRange(location: loc, length: 0), in: textContentStorage)!,
             type: .selection
@@ -432,7 +472,7 @@ extension TextUIView: UITextInput {
 
             return false
         }
-        
+
         let result = selectionFrame
             .with(width: 2)
             .offsetBy(dx: padding, dy: 0)
@@ -441,17 +481,17 @@ extension TextUIView: UITextInput {
     }
     
     func selectionRects(for range: UITextRange) -> [UITextSelectionRect] {
-        guard let range = range as? SortedTextRange else {
-            fatalError()
-        }
         
-        let nsRange = range.nsRange(
-            in: textContentStorage.textStorage?.string ?? ""
-        )
+        guard let textStorage = textContentStorage.textStorage
+        else { fatalError() }
         
-        guard let textRange = NSTextRange(nsRange, in: textContentStorage) else {
-            fatalError()
-        }
+        guard let range = range as? SortedTextRange else { fatalError() }
+        
+        guard let nsRange = range.nsRange(in: textStorage.string)
+        else { return [] }
+        
+        guard let textRange = NSTextRange(nsRange, in: textContentStorage)
+        else { return [] }
         
         var rects = [SortedTextSelectionRect]()
         
@@ -465,6 +505,9 @@ extension TextUIView: UITextInput {
             return true
         }
         
+        rects.first?.rectContainsStart = true
+        rects.last?.rectContainsEnd = true
+        
         return rects
     }
     
@@ -474,8 +517,8 @@ extension TextUIView: UITextInput {
         let nav = textLayoutManager.textSelectionNavigation
         
         let selections = nav.textSelections(
-            interactingAt: point,
-            inContainerAt: textLayoutManager.documentRange.location,
+            interactingAt: point.offset(dx: -padding, dy: 0),
+            inContainerAt: textLayoutManager.documentRange.endLocation,
             anchors: [],
             modifiers: [],
             selecting: true,
@@ -508,102 +551,32 @@ extension TextUIView: UITextInput {
         to point: CGPoint,
         within range: UITextRange
     ) -> UITextPosition? {
-        // TODO
-        print("*** hehe: \(point)")
-        guard let range = range as? SortedTextRange else {
-            fatalError()
+        print("*** \(#function): point = \(point), within range = \(range)")
+        guard let textRange = range as? SortedTextRange,
+              let closestPosition = closestPosition(to: point) as? SortedTextPosition
+        else { return nil }
+        
+        if closestPosition < textRange.start {
+            return textRange.start
+        } else if closestPosition >= textRange.end {
+            return textRange.end
+        } else {
+            return closestPosition
         }
-        return range.startPosition
     }
     
     func characterRange(at point: CGPoint) -> UITextRange? {
-        // TODO
-        print("*** haha: \(point)")
-        return SortedTextRange(
-            from: SortedTextPosition(
-                index: 0
-            ),
-            to: SortedTextPosition(
-                index: textContentStorage.textStorage?.string.count ?? 0
-            ))
-    }
-    
-    var hasText: Bool {
-        textContentStorage.textStorage?.string.isEmpty ?? false
-    }
-    
-    func insertText(_ text: String) {
-        // insert operation takes effect on current focus point (marked or selected)
-        // after insertion, marked range is always cleared, and length of
-        // selected range is always zero.
-        guard let textStorage = textContentStorage.textStorage
-        else { fatalError() }
+        print("*** \(#function): point = \(point)")
+        guard let start = closestPosition(to: point) as? SortedTextPosition
+        else { return nil }
         
-        guard let rangeToReplace = _markedTextRange ?? _selectedTextRange
-        else { return }
-        
-        let rangeStartIndex = rangeToReplace.startPosition.index
-        
-        textContentStorage.performEditingTransaction {
-            textStorage.replaceCharacters(
-                in: rangeToReplace.nsRange(in: textStorage.string),
-                with: text
-            )
+        var end = SortedTextPosition(position: start, offset: 1)
+        if let endOfDocument = endOfDocument as? SortedTextPosition,
+           endOfDocument < end
+        {
+            end = endOfDocument
         }
-        
-        _markedTextRange = nil
-        let insertedPosition = SortedTextPosition(
-            index: rangeStartIndex + text.count
-        )
-        _selectedTextRange = SortedTextRange(
-            from: insertedPosition,
-            to: insertedPosition
-        )
-        
-        textDidChange()
-    }
-    
-    func deleteBackward() {
-        // deleteBackward operation takes effect on current focus point
-        // after backward deletion, marked range is always cleared, and
-        // length of selected range is always zero.
-        
-        guard let textStorage = textContentStorage.textStorage
-        else { fatalError() }
-        
-        guard let rangeToDelete = _markedTextRange ?? _selectedTextRange
-        else { return }
-        
-        var rangeStartPosition = rangeToDelete.startPosition
-        var rangeStartIndex = rangeStartPosition.index
-        if rangeToDelete.isEmpty {
-            guard rangeStartIndex != 0 else { return }
-            rangeStartIndex -= 1
-            textContentStorage.performEditingTransaction {
-                textStorage.replaceCharacters(
-                    in: NSRange(
-                        location: rangeStartIndex,
-                        length: 1
-                    ),
-                    with: ""
-                )
-            }
-            rangeStartPosition = SortedTextPosition(index: rangeStartIndex)
-        } else {
-            textContentStorage.performEditingTransaction {
-                textStorage.replaceCharacters(
-                    in: rangeToDelete.nsRange(in: textStorage.string),
-                    with: ""
-                )
-            }
-        }
-        
-        _markedTextRange = nil
-        _selectedTextRange = SortedTextRange(
-            from: rangeStartPosition,
-            to: rangeStartPosition
-        )
-        textDidChange()
+        return SortedTextRange(from: start, to: end)
     }
 }
 
@@ -613,34 +586,5 @@ extension SortedTextView {
         replacementText text: String
     ) -> Bool {
         return true
-    }
-}
-
-//extension NSTextLayoutManager {
-//
-//    var insertionPointLocation: NSTextLocation? {
-//        guard let textSelection = textSelections.first(
-//            where: { !$0.isLogical }
-//        ) else { return nil }
-//
-//        return textSelectionNavigation
-//            .resolvedInsertionLocation(
-//                for: textSelection,
-//                writingDirection: .leftToRight
-//            )
-//    }
-//}
-
-final class SortedTextSelectionRect: UITextSelectionRect {
-    
-    override var rect: CGRect {
-        return _rect
-    }
-    
-    private let _rect: CGRect
-    
-    init(rect: CGRect) {
-        self._rect = rect
-        super.init()
     }
 }

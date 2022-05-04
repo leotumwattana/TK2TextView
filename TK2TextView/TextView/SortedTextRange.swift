@@ -13,15 +13,23 @@ final class SortedTextRange: UITextRange {
     // MARK: - Properties
     // ==================
     
-    let startPosition: SortedTextPosition
-    let endPosition: SortedTextPosition
+    private let startPosition: SortedTextPosition
+    private let endPosition: SortedTextPosition
+    
+    override var start: SortedTextPosition {
+        return startPosition
+    }
+    
+    override var end: SortedTextPosition {
+        return endPosition
+    }
     
     override var isEmpty: Bool {
         startPosition.index >= endPosition.index
     }
     
     override var description: String {
-        "[\(startPosition.index) ..< \(endPosition.index)]"
+        "[\(startPosition.index), \(endPosition.index)]"
     }
     
     var length: Int {
@@ -64,19 +72,34 @@ final class SortedTextRange: UITextRange {
     // MARK: - Helpers
     // ===============
     
-    func range(in str: String) -> Range<String.Index> {
-        let startIndex = str.index(
-            str.startIndex,
-            offsetBy: startPosition.index
+    func range(in text: String) -> Range<String.Index>? {
+        assert(start <= end, "\(#function): TextRange.start must be <= TextRange.end.")
+        assert(text.count == (text as NSString).length) // DEBUG
+        
+        let startIndex = text.index(
+            text.startIndex,
+            offsetBy: startPosition.index,
+            limitedBy: text.endIndex
         )
-        let endIndex = str.index(
-            startIndex,
-            offsetBy: endPosition.index - startPosition.index
+        
+        let endIndex = text.index(
+            text.startIndex,
+            offsetBy: end.index,
+            limitedBy: text.endIndex
         )
-        return startIndex..<endIndex
+        
+        if let startIndex = startIndex, let endIndex = endIndex {
+            return startIndex..<endIndex
+        }
+        
+        return nil
     }
     
-    func nsRange(in str: String) -> NSRange {
-        return NSRange(range(in: str), in: str)
+    func nsRange(in text: String) -> NSRange? {
+        if let range = range(in: text) {
+            return NSRange(range, in: text)
+        } else {
+            return nil
+        }
     }
 }

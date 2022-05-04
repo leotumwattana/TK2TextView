@@ -92,38 +92,52 @@ class TextUIView: UIScrollView {
         true
     }
     
+    
+    
     /**
      Text content
      */
-    var string: String {
-        get { textContentStorage.attributedString?.string ?? "" }
-        set { setString(newValue) }
-    }
+//    var string: String {
+//        get { textContentStorage.attributedString?.string ?? "" }
+//        set { setString(newValue) }
+//    }
     
     private var contentLayer: CALayer = TextLayer()
     private var selectionLayer: CALayer = TextLayer()
     private var fragmentLayerMap: NSMapTable<NSTextLayoutFragment, CALayer>
     let padding: CGFloat = 5
     
-    internal var _selectedTextRange: SortedTextRange? {
-        didSet {
-            print("*** selectedTextRange: \(_selectedTextRange)")
-            print("*** textInputDelegate: \(inputDelegate)")
-//            inputDelegate?.selectionDidChange(self)
-        }
-    }
         
-    internal var _markedTextRange: SortedTextRange?
-    
-    internal var _markedTextStyle: [NSAttributedString.Key: Any]?
+    // ==============================
+    // MARK: - UITextInput properties
+    // ==============================
     
     var inputDelegate: UITextInputDelegate?
+    
+    var selectedTextRange: UITextRange? {
+        willSet {
+            print("\(#function): current = \(String(describing: selectedTextRange))")
+            print("\(#function): new = \(String(describing: newValue))")
+            inputDelegate?.selectionWillChange(self)
+        }
+        didSet {
+            inputDelegate?.selectionDidChange(self)
+        }
+    }
+    
+    var markedTextRange: UITextRange?
+    
+    var markedTextStyle: [NSAttributedString.Key : Any]?
     
     lazy var tokenizer: UITextInputTokenizer = {
         UITextInputStringTokenizer(textInput: self)
     }()
     
-    let textInteraction = UITextInteraction(for: .editable)
+    // =========================
+    // MARK: - UITextInteraction
+    // =========================
+    
+    var textInteraction = UITextInteraction(for: .editable)
 
     // ============
     // MARK: - Init

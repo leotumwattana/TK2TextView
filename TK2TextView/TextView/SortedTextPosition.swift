@@ -7,7 +7,7 @@
 
 import UIKit
 
-final class SortedTextPosition: UITextPosition, NSTextLocation {
+final class SortedTextPosition: UITextPosition, NSTextLocation, Comparable {
     
     // ==================
     // MARK: - Properties
@@ -27,6 +27,13 @@ final class SortedTextPosition: UITextPosition, NSTextLocation {
         self.index = index
     }
     
+    init(position: SortedTextPosition, offset: Int) {
+        self.index = position.index + offset
+    }
+    
+    static func < (lhs: SortedTextPosition, rhs: SortedTextPosition) -> Bool {
+        lhs.index < rhs.index
+    }
 }
 
 extension SortedTextPosition {

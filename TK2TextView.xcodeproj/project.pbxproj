@@ -27,6 +27,8 @@
 		3A83CCBC281429F000EB4D13 /* SortedTextView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3A83CCBB281429F000EB4D13 /* SortedTextView.swift */; };
 		3A83CCBE281431D600EB4D13 /* TextLayoutFragmentLayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3A83CCBD281431D600EB4D13 /* TextLayoutFragmentLayer.swift */; };
 		3A83CCC0281431F000EB4D13 /* TextLayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3A83CCBF281431F000EB4D13 /* TextLayer.swift */; };
+		3ADF8A2F28224DF100DA5C05 /* SortedTextSelectionRect.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3ADF8A2E28224DF100DA5C05 /* SortedTextSelectionRect.swift */; };
+		3ADF8A31282250C300DA5C05 /* TextUIView+UIKeyInput.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3ADF8A30282250C300DA5C05 /* TextUIView+UIKeyInput.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -51,6 +53,8 @@
 		3A83CCBB281429F000EB4D13 /* SortedTextView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SortedTextView.swift; sourceTree = "<group>"; };
 		3A83CCBD281431D600EB4D13 /* TextLayoutFragmentLayer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextLayoutFragmentLayer.swift; sourceTree = "<group>"; };
 		3A83CCBF281431F000EB4D13 /* TextLayer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextLayer.swift; sourceTree = "<group>"; };
+		3ADF8A2E28224DF100DA5C05 /* SortedTextSelectionRect.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SortedTextSelectionRect.swift; sourceTree = "<group>"; };
+		3ADF8A30282250C300DA5C05 /* TextUIView+UIKeyInput.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "TextUIView+UIKeyInput.swift"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -67,7 +71,6 @@
 		3A83CCA0281429C700EB4D13 = {
 			isa = PBXGroup;
 			children = (
-				3A2051F22817E8AC0064903F /* SortedTextContentStorage.swift */,
 				3A83CCAB281429C700EB4D13 /* TK2TextView */,
 				3A83CCAA281429C700EB4D13 /* Products */,
 			);
@@ -104,9 +107,12 @@
 		3A83CCBA281429D100EB4D13 /* TextView */ = {
 			isa = PBXGroup;
 			children = (
+				3A2051F22817E8AC0064903F /* SortedTextContentStorage.swift */,
+				3ADF8A30282250C300DA5C05 /* TextUIView+UIKeyInput.swift */,
 				3A2051F42818E7600064903F /* NSAttributedStringKey+Extensions.swift */,
 				3A83CCBB281429F000EB4D13 /* SortedTextView.swift */,
 				3A2051F0281651340064903F /* SortedTextView+UITextInput.swift */,
+				3ADF8A2E28224DF100DA5C05 /* SortedTextSelectionRect.swift */,
 				3A2051F8281C831D0064903F /* SortedTextPosition.swift */,
 				3A2051FA281C833C0064903F /* SortedTextRange.swift */,
 				3A2051EC28164CF60064903F /* NSRange+Extensions.swift */,
@@ -205,7 +211,9 @@
 				3A2051FB281C833C0064903F /* SortedTextRange.swift in Sources */,
 				3A2051E7281580770064903F /* String+Extensions.swift in Sources */,
 				3A2051E3281552890064903F /* CustomLayoutFragment.swift in Sources */,
+				3ADF8A2F28224DF100DA5C05 /* SortedTextSelectionRect.swift in Sources */,
 				3A2051F1281651340064903F /* SortedTextView+UITextInput.swift in Sources */,
+				3ADF8A31282250C300DA5C05 /* TextUIView+UIKeyInput.swift in Sources */,
 				3A83CCAD281429C700EB4D13 /* TK2TextViewApp.swift in Sources */,
 				3A2051EF28164D0D0064903F /* NSTextRange+Extensions.swift in Sources */,
 				3A2051EB281582C20064903F /* UIFont+Extensions.swift in Sources */,
